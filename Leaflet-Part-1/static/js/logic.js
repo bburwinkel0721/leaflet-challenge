@@ -1,5 +1,6 @@
 // Store our API endpoint as queryUrl.
-let queryUrl ="https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
+let queryUrl =
+  "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
 
 // Perform a GET request to the query URL.
 d3.json(queryUrl).then(function (data) {
@@ -14,7 +15,7 @@ function createFeatures(earthquakeData) {
 
 // createMap() takes the earthquake data and incorporates it into the visualization:
 function createMap(earthquakes) {
-  // Create the base layers.
+  // Create the street layer.
   let street = L.tileLayer(
     "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
     {
@@ -25,20 +26,20 @@ function createMap(earthquakes) {
 
   // Create a color scale based on depth
   let getColor = (depth) => {
-        if (depth > 90 ){
-            return '#d73027' 
-        } else if (depth > 70){
-            return '#fc8d59'
-        } else if (depth > 50){
-            return '#fee08b'
-        } else if (depth > 30){
-            return '#d9ef8b'
-        } else if (depth > 10){
-            return '#91cf60'
-        } else {
-            return '#1a9850'
-        }
-        };
+    if (depth > 90) {
+      return "#d73027";
+    } else if (depth > 70) {
+      return "#fc8d59";
+    } else if (depth > 50) {
+      return "#fee08b";
+    } else if (depth > 30) {
+      return "#d9ef8b";
+    } else if (depth > 10) {
+      return "#91cf60";
+    } else {
+      return "#1a9850";
+    }
+  };
 
   // Create an overlays object.
   let markerArray = earthquakes.map((earthquake) => {
@@ -54,8 +55,8 @@ function createMap(earthquakes) {
       fillOpacity: 0.5,
       radius: mag * 20000,
     });
-    
-    // Bind opup with earthquake infomation
+
+    // Bind popup with earthquake infomation
     place.bindPopup(`
       <h3>${earthquake.properties.place}</h3>
       <hr>
@@ -64,15 +65,18 @@ function createMap(earthquakes) {
       <p><strong>Time:</strong> ${new Date(earthquake.properties.time)}</p>
     `);
     // Add a tooltip with a brief summary
-    place.bindTooltip(`Magnitude: ${mag}, location: ${earthquake.properties.place}, Depth: ${depth} km`, {permanent: false});
+    place.bindTooltip(
+      `Magnitude: ${mag}, location: ${earthquake.properties.place}, Depth: ${depth} km`,
+      { permanent: false }
+    );
 
     return place;
   });
 
+  // Create a marker layer group for the earthquake data
   const markerLayer = L.layerGroup(markerArray);
 
   // Create a new map.
-  // Edit the code to add the earthquake data to the layers.
   let myMap = L.map("map", {
     center: [37.09, -95.71],
     zoom: 4,
@@ -80,28 +84,31 @@ function createMap(earthquakes) {
   });
 
   // Create a legend control
-  let legend = L.control({ position: 'bottomright' });
-
+  let legend = L.control({ position: "bottomright" });
   legend.onAdd = function (map) {
-    let div = L.DomUtil.create('div', 'info legend'),
-        grades = [-10, 10, 30, 50, 70, 90],
-        labels = [];
+    let div = L.DomUtil.create("div", "info legend"),
+      grades = [-10, 10, 30, 50, 70, 90],
+      labels = [];
 
     // Loop through our density intervals and generate a label with a colored square for each interval.
     for (let i = 0; i < grades.length; i++) {
       div.innerHTML +=
-        '<div><i style="background-color:' + getColor(grades[i] + 1) + '"></i> ' +
-        grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '</div>' : '+</div>');
+        '<div><i style="background-color:' +
+        getColor(grades[i] + 1) +
+        '"></i> ' +
+        grades[i] +
+        (grades[i + 1] ? "&ndash;" + grades[i + 1] + "</div>" : "+</div>");
     }
 
     return div;
   };
 
+  // Add legend to map
   legend.addTo(myMap);
 }
 
 // CSS for the legend
-let style = document.createElement('style');
+let style = document.createElement("style");
 style.innerHTML = `
   .info.legend {
     background: white;
