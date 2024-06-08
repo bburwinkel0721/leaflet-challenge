@@ -23,6 +23,23 @@ function createMap(earthquakes) {
     }
   );
 
+  let topo = L.tileLayer("https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png", {
+    attribution:
+      'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
+  });
+
+  let Esri_WorldGrayCanvas = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+	attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
+	maxZoom: 16
+  });
+
+  // Create a baseMaps object.
+  let baseMaps = {
+    "Street Map": street,
+    "Topographic Map": topo,
+    "Gray Map": Esri_WorldGrayCanvas
+  };
+
   // Create a color scale based on depth
   let getColor = (depth) => {
         if (depth > 90 ){
@@ -71,6 +88,14 @@ function createMap(earthquakes) {
 
   const markerLayer = L.layerGroup(markerArray);
 
+
+
+
+
+  const overlayMaps = {
+    'Earthquakes': markerLayer,
+  };
+
   // Create a new map.
   // Edit the code to add the earthquake data to the layers.
   let myMap = L.map("map", {
@@ -78,6 +103,13 @@ function createMap(earthquakes) {
     zoom: 4,
     layers: [street, markerLayer],
   });
+
+  // Create a layer control that contains our baseMaps.
+  // Be sure to add an overlay Layer that contains the earthquake GeoJSON.
+  let layerControl = L.control.layers(baseMaps, overlayMaps, {
+      collapsed: false
+    })
+  layerControl.addTo(myMap);
 
   // Create a legend control
   let legend = L.control({ position: 'bottomright' });
