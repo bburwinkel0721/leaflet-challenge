@@ -14,7 +14,6 @@ function createFeatures(earthquakeData) {
 }
 
 // createMap() takes the earthquake data and incorporates it into the visualization:
-
 function createMap(earthquakes) {
   // Create the base layers.
   let street = L.tileLayer(
@@ -35,31 +34,47 @@ function createMap(earthquakes) {
     "Street Map": street,
     "Topographic Map": topo,
   };
-    // Create a color scale based on depth
-    let getColor = (depth) => {
-        return depth > 90 ? '#d73027' :
-                depth > 70 ? '#fc8d59' :
-                depth > 50 ? '#fee08b' :
-                depth > 30 ? '#d9ef8b' :
-                depth > 10 ? '#91cf60' :
-                            '#1a9850';
+
+  // Create a color scale based on depth
+  let getColor = (depth) => {
+        if (depth > 90 ){
+            return '#d73027' 
+        } else if (depth > 70){
+            return '#fc8d59'
+        } else if (depth > 50){
+            return '#fee08b'
+        } else if (depth > 30){
+            return '#d9ef8b'
+        } else if (depth > 10){
+            return '#91cf60'
+        } else {
+            return '#1a9850'
+        }
         };
 
   // Create an overlays object.
-  const markerArray = earthquakes.map((earthquake) => {
-    const coordinates = earthquake.geometry.coordinates;
-    const lat = coordinates[1];
-    const lon = coordinates[0];
-    const depth = coordinates[2];
-    const mag = earthquake.properties.mag;
+  let markerArray = earthquakes.map((earthquake) => {
+    let coordinates = earthquake.geometry.coordinates;
+    let lat = coordinates[1];
+    let lon = coordinates[0];
+    let depth = coordinates[2];
+    let mag = earthquake.properties.mag;
     let place = L.circle([lat, lon], {
-      color: null,
+      color: getColor(depth),
       fillColor: getColor(depth),
-      scale: ['#ffffb2', "#b10026"],
+      stroke: false,
       fillOpacity: 0.5,
       radius: mag * 20000,
     });
-    place.bindPopup(`<h3>${earthquake.properties.place}</h3><hr><p>${new Date(earthquake.properties.time)}</p>`);
+    
+    // Bind opup with earthquake infomation
+    place.bindPopup(`
+      <h3>${earthquake.properties.place}</h3>
+      <hr>
+      <p><strong>Magnitude:</strong> ${mag}</p>
+      <p><strong>Depth:</strong> ${depth} km</p>
+      <p><strong>Time:</strong> ${new Date(earthquake.properties.time)}</p>
+    `);
 
     return place;
   });
@@ -67,7 +82,7 @@ function createMap(earthquakes) {
   const markerLayer = L.layerGroup(markerArray);
 
   const overlayMaps = {
-    Earthquakes: markerLayer,
+    'Earthquakes': markerLayer,
   };
 
   // Create a new map.
@@ -78,13 +93,53 @@ function createMap(earthquakes) {
     layers: [street, markerLayer],
   });
 
-  myMap.fitBounds(markerLayer.getBounds());
-
   // Create a layer control that contains our baseMaps.
   // Be sure to add an overlay Layer that contains the earthquake GeoJSON.
-  L.control
-    .layers(baseMaps, overlayMaps, {
-      collapsed: false,
+  let layerControl = L.control.layers(baseMaps, overlayMaps, {
+      collapsed: false
     })
-    .addTo(myMap);
+  layerControl.addTo(myMap);
+
+  // Create a legend control
+  let legend = L.control({ position: 'bottomright' });
+
+  legend.onAdd = function (map) {
+    let div = L.DomUtil.create('div', 'info legend'),
+        grades = [-10, 10, 30, 50, 70, 90],
+        labels = [];
+
+    // Loop through our density intervals and generate a label with a colored square for each interval.
+    for (let i = 0; i < grades.length; i++) {
+      div.innerHTML +=
+        '<i style="background-color:' + getColor(grades[i] + 1) + '"></i> ' +
+        grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+    }
+
+    return div;
+  };
+
+  legend.addTo(myMap);
 }
+// CSS for the legend
+let style = document.createElement('style');
+style.innerHTML = `
+  .info.legend {
+    background: white;
+    padding: 6px 8px;
+    font: 14px/16px Arial, Helvetica, sans-serif;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+  }
+  .info.legend i {
+    width: 18px;
+    height: 18px;
+    float: left;
+    margin-right: 8px;
+    opacity: 0.7;
+  }
+  .info.legend div {
+    line-height: 18px;
+    margin-bottom: 2px;
+  }
+`;
+document.head.appendChild(style);

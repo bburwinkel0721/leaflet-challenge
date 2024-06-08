@@ -8,3 +8,7 @@ body,
 html {
   height: 100%;
 }
+  
+.leaflet-popup-content {
+  text-align: center;
+}
