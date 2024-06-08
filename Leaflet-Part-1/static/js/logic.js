@@ -75,6 +75,8 @@ function createMap(earthquakes) {
       <p><strong>Depth:</strong> ${depth} km</p>
       <p><strong>Time:</strong> ${new Date(earthquake.properties.time)}</p>
     `);
+    // Add a tooltip with a brief summary
+    place.bindTooltip(`Magnitude: ${mag}, location: ${earthquake.properties.place}, Depth: ${depth} km`, {permanent: false});
 
     return place;
   });
@@ -111,8 +113,8 @@ function createMap(earthquakes) {
     // Loop through our density intervals and generate a label with a colored square for each interval.
     for (let i = 0; i < grades.length; i++) {
       div.innerHTML +=
-        '<i style="background-color:' + getColor(grades[i] + 1) + '"></i> ' +
-        grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+        '<div><i style="background-color:' + getColor(grades[i] + 1) + '"></i> ' +
+        grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '</div>' : '+</div>');
     }
 
     return div;
@@ -120,6 +122,7 @@ function createMap(earthquakes) {
 
   legend.addTo(myMap);
 }
+
 // CSS for the legend
 let style = document.createElement('style');
 style.innerHTML = `
@@ -140,6 +143,7 @@ style.innerHTML = `
   .info.legend div {
     line-height: 18px;
     margin-bottom: 2px;
+    clear: both;
   }
 `;
 document.head.appendChild(style);
