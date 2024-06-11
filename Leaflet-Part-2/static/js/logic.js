@@ -2,19 +2,25 @@
 let queryUrl =
   "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
 
+  // Store the file path for the tectonic plate data
+let jsonPath = './static/data/PB2002_boundaries.json'
+
 // Perform a GET request to the query URL.
 d3.json(queryUrl).then(function (data) {
-  // Pass the features to a createFeatures() function:
-  createFeatures(data.features);
+  // Retrieve the local json data
+  d3.json(jsonPath).then(plateData =>{
+    // Pass the features to a createFeatures() function:
+    createFeatures(data.features, plateData);
+  })
 });
 
-function createFeatures(earthquakeData) {
-  // Pass the earthquake data to a createMap() function.
-  createMap(earthquakeData);
+function createFeatures(earthquakeData, plateData) {
+  // Pass the earthquake data and tectonic plate data to a createMap() function.
+  createMap(earthquakeData, plateData);
 }
 
-// createMap() takes the earthquake data and incorporates it into the visualization:
-function createMap(earthquakes) {
+// createMap() takes the earthquake data and tectonic plate data and incorporates it into the visualization:
+function createMap(earthquakes,plateData) {
   // Create the base layers.
   let street = L.tileLayer(
     "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -36,6 +42,19 @@ function createMap(earthquakes) {
       maxZoom: 16,
     }
   );
+  
+  // Create the tectonic plate lines
+  let plateLayer = L.geoJson(plateData, {
+    // Style the tectonic plate lines
+    style: function(feature) {
+      return {
+        color: "red",
+        fillColor: 'yellow',
+        fillOpacity: 0.5,
+        weight: 2
+      };
+    }
+  })
 
   // Create a baseMaps object.
   let baseMaps = {
@@ -61,7 +80,7 @@ function createMap(earthquakes) {
     }
   };
 
-  // Create an overlays object.
+  // Create the marker layer.
   let markerArray = earthquakes.map((earthquake) => {
     let coordinates = earthquake.geometry.coordinates;
     let lat = coordinates[1];
@@ -99,13 +118,14 @@ function createMap(earthquakes) {
   // Create map overlay
   const overlayMaps = {
     Earthquakes: markerLayer,
+    Plate: plateLayer
   };
 
   // Create a new map.
   let myMap = L.map("map", {
     center: [37.09, -95.71],
     zoom: 4,
-    layers: [street, markerLayer],
+    layers: [street, markerLayer, plateLayer],
   });
 
   // Create a layer control that contains our baseMaps.
