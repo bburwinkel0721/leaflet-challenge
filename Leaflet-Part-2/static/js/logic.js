@@ -2,16 +2,16 @@
 let queryUrl =
   "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
 
-  // Store the file path for the tectonic plate data
-let jsonPath = './static/data/PB2002_boundaries.json'
+// Store the file path for the tectonic plate data
+let jsonPath = "./static/data/PB2002_boundaries.json";
 
 // Perform a GET request to the query URL.
 d3.json(queryUrl).then(function (data) {
   // Retrieve the local json data
-  d3.json(jsonPath).then(plateData =>{
+  d3.json(jsonPath).then((plateData) => {
     // Pass the features to a createFeatures() function:
     createFeatures(data.features, plateData);
-  })
+  });
 });
 
 function createFeatures(earthquakeData, plateData) {
@@ -20,7 +20,7 @@ function createFeatures(earthquakeData, plateData) {
 }
 
 // createMap() takes the earthquake data and tectonic plate data and incorporates it into the visualization:
-function createMap(earthquakes,plateData) {
+function createMap(earthquakes, plateData) {
   // Create the base layers.
   let street = L.tileLayer(
     "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -42,19 +42,19 @@ function createMap(earthquakes,plateData) {
       maxZoom: 16,
     }
   );
-  
+
   // Create the tectonic plate lines
   let plateLayer = L.geoJson(plateData, {
     // Style the tectonic plate lines
-    style: function(feature) {
+    style: function (feature) {
       return {
         color: "red",
-        fillColor: 'yellow',
+        fillColor: "yellow",
         fillOpacity: 0.5,
-        weight: 2
+        weight: 2,
       };
-    }
-  })
+    },
+  });
 
   // Create a baseMaps object.
   let baseMaps = {
@@ -118,7 +118,7 @@ function createMap(earthquakes,plateData) {
   // Create map overlay
   const overlayMaps = {
     Earthquakes: markerLayer,
-    Plate: plateLayer
+    "Tectonic Plates": plateLayer,
   };
 
   // Create a new map.
@@ -141,7 +141,7 @@ function createMap(earthquakes,plateData) {
       grades = [-10, 10, 30, 50, 70, 90],
       labels = [];
 
-    // Loop through our density intervals and generate a label with a colored square for each interval.
+    // Loop through our depth intervals and generate a label with a colored square for each interval.
     for (let i = 0; i < grades.length; i++) {
       div.innerHTML +=
         '<div><i style="background-color:' +
