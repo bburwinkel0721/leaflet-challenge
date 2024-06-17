@@ -19,5 +19,17 @@
     - Put each dataset into separate overlays that can be turned on and off independently.
     - Add layer controls to your map.
 
+## Run Instructions
+- Part 1: How to Run
+    - Download the Leaflet-Part-1 folder.
+    - Select the index.html.
+    - Select open in default browser
+    
+- Part 2: How to Run
+    - Download the Leaflet-Part-2 folder.
+    - While in VS Code (or your preferred editor) navigate, in the terminal, to the Leaflet=Part-2 folder.
+    - Run "python -m http.server" in your terminal.
+    - Open the web address generated in the browser.
+
 ## Sources
 - [Map Layers](https://leaflet-extras.github.io/leaflet-providers/preview/)
